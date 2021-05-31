@@ -51,7 +51,12 @@ class Worker(QObject):
 
                 sys.stdout.write('\rDescargando última versión del parche...' )
                 self.label.emit('Descargando última versión del parche...')
-                r = requests.get(jsonFile['assets'][0]['browser_download_url'])
+                i = 0
+                asset = jsonFile['assets'][i]
+                while(asset['name']!='Patch.zip'):
+                    i+=1
+                    asset = jsonFile['assets'][i]
+                r = requests.get(asset['browser_download_url'])
                 
                 open('patch.zip', 'wb').write(r.content)
                 with zipfile.ZipFile('patch.zip', 'r') as zip_ref:
