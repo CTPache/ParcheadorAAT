@@ -11,7 +11,7 @@ from datetime import datetime
 import winreg
 import sys
 
-URL = 'https://api.github.com/repos/CTPache/Dummy/releases/latest'
+URL = 'https://api.github.com/repos/CTPache/ParcheadorAAT/releases/latest'
 
 class Worker(QObject):
     finished = pyqtSignal()
