@@ -40,6 +40,7 @@ Tardará un rato en verificar y descargar los ficheros originales. Una vez esté
 
 ### Créditos
 Parcheador escrito por [CTPache](https://github.com/CTPache)
+
 Interfaz escrita por [CTPache](https://github.com/CTPache) y [legendaryX77](https://github.com/legendaryX77).
 
 Agradecimientos a [Darkmet98](https://github.com/Darkmet98) por el [parcheador de Disgaea](https://github.com/Darkmet98/DisgaeaPatcher)
