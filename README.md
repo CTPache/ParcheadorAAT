@@ -7,19 +7,11 @@
 - Una vez aplicado, abrir el juego normalmente en Steam. Si el juego aparece en otro idioma, cambiar a español en el menú de opciones.
 
 ## Compilación
-- Para compilar el ejecutable es necesario el uso de pyinstaller:
+- Para compilar el ejecutable es necesario el uso de pyinstaller, y es necesaria la librería pyQt5:
   
-`` pip install pyinstaller``
-
-- También es necesaria la librería pyQt5:
-
-`` pip install pyQt5``
+`` pip install pyinstaller pyQt5``
   
-- El comando para compilarlo es el siguiente:
-
-`` pyinstaller --noconfirm --onefile --console --icon "./icon.ico" --add-data "./res;res"  "./main.py"``
-  
-El ejecutable se encontrará en el directorio dist.
+- Una vez se cumplan las dependencias, se ejecuta buid.bat, y el ejecutable se compilará como "PatcherNew.exe".
 
 ## Troubleshooting
 
@@ -38,9 +30,14 @@ Lo más habitual es que suceda al final, cuando falta un único fichero por parc
 
 Tardará un rato en verificar y descargar los ficheros originales. Una vez estén, se podrá aplicar el parche de forma normal.
 
-### Créditos
-Parcheador escrito por [CTPache](https://github.com/CTPache)
+## Créditos
+- Parcheador escrito por [CTPache](https://github.com/CTPache)
 
-Interfaz escrita por [CTPache](https://github.com/CTPache) y [legendaryX77](https://github.com/legendaryX77).
+- Interfaz escrita por [CTPache](https://github.com/CTPache) y [legendaryX77](https://github.com/legendaryX77).
 
-Agradecimientos a [Darkmet98](https://github.com/Darkmet98) por el [parcheador de Disgaea](https://github.com/Darkmet98/DisgaeaPatcher)
+- Agradecimientos a [Darkmet98](https://github.com/Darkmet98) por el [parcheador de Disgaea](https://github.com/Darkmet98/DisgaeaPatcher)
+
+## Créditos del parche
+- Edición gráfica, revisión y coordinación: [JauCR](https://github.com/JauCR/)
+- Romhacking: [CTPache](https://github.com/CTPache) y [WorstAquaPlayer](https://github.com/WorstAquaPlayer)
+- Agradecimientos a CAPCOM por la traducción original de DS.
