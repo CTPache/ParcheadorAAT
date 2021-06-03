@@ -30,7 +30,7 @@ Lo más habitual es que suceda al final, cuando falta un único fichero por parc
 
 Tardará un rato en verificar y descargar los ficheros originales. Una vez estén, se podrá aplicar el parche de forma normal.
 
-## Créditos
+## Créditos del parcheador
 - Parcheador escrito por [CTPache](https://github.com/CTPache)
 
 - Interfaz escrita por [CTPache](https://github.com/CTPache) y [legendaryX77](https://github.com/legendaryX77).
@@ -39,5 +39,7 @@ Tardará un rato en verificar y descargar los ficheros originales. Una vez esté
 
 ## Créditos del parche
 - Edición gráfica, revisión y coordinación: [JauCR](https://github.com/JauCR/)
+
 - Romhacking: [CTPache](https://github.com/CTPache) y [WorstAquaPlayer](https://github.com/WorstAquaPlayer)
+
 - Agradecimientos a CAPCOM por la traducción original de DS.
