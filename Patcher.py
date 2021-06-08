@@ -7,7 +7,6 @@ import zipfile
 import os
 import json
 import subprocess
-from datetime import datetime
 import winreg
 import sys
 import winsound
@@ -16,11 +15,9 @@ from joblib import Parallel, delayed
 URL = 'https://api.github.com/repos/CTPache/ParcheadorAAT/releases/latest'
 
 
-def execute(cmd, verbose = 0):
+def execute(cmd):
             completed = subprocess.run(
                 ["powershell", "-Command", cmd], capture_output=True)
-            if verbose :
-                    print(cmd, completed.stdout, completed.stderr)
             return completed.returncode
 
 def executePatch(line, path, patch, callback, flag):
@@ -70,7 +67,7 @@ class Worker(QObject):
 
                 
                 if not os.path.isdir('./Patch'):
-                    print('Descargando última versión del parche...' )
+                    
                     self.label.emit('Descargando última versión del parche...')
                     i = 0
                     asset = jsonFile['assets'][i]
@@ -93,8 +90,7 @@ class Worker(QObject):
                     with zipfile.ZipFile('patch.zip', 'r') as zip_ref:
                         zip_ref.extractall('Patch')
                     execute('rm patch.zip')
-
-                    print('¡Parche descargado!')                
+             
                     self.label.emit('¡Parche descargado!')
 
                 return versionID
@@ -109,9 +105,7 @@ class Worker(QObject):
                     self.lines = []
                 else:
                     self.percent += 1
-                    #print((str)(round((self.percent / len(self.lines)) * 100, 1)) + "%")
                     self.progress.emit( int( (self.percent / len(self.lines)) * 100 ) )
-                    sys.stdout.flush()
                      
 
     def run(self):
@@ -119,9 +113,7 @@ class Worker(QObject):
             versionID = self.getRelease()
                             
             if versionID:
-                
-                now = datetime.now()
-                sys.stdout.write('\r\nAplicando parche ' + (str)(versionID) +'\n')                
+                         
                 self.label.emit('Aplicando el parche...')
                 file1 = open('Patch\\files.txt', 'r')
                 self.lines = file1.readlines()
@@ -129,21 +121,14 @@ class Worker(QObject):
                 self.parcheaFichero()
                 if self.flag == 0:
                     self.label.emit('Ha sucedido un error al parchear el juego. Verifica los ficheros del juego en Steam y vuelve a \nintentarlo (Propiedades -> Archivos Locales -> Verificar integridad de los archivos del juego...).')
-                    print('\rHa sucedido un error al parchear el juego. Verifica los ficheros del juego en Steam y vuelve a intentarlo (Propiedades -> Archivos Locales -> Verificar integridad de los archivos de juego...)')        
                     self.finished.emit()
                     return
-
-                sys.stdout.write('\r')
-                sys.stdout.write("Parche aplicado en " + (str)(datetime.now() - now))
-                sys.stdout.flush()
                 execute("Remove-Item -Path Patch -Force -Recurse")
                 versionfile = open(self.path + '\\version.txt', 'w+') 
                 versionfile.writelines([versionID, ',' ,URL])          
                 versionfile.close()   
-                sys.stdout.write("¡Parche aplicado! Abre el juego desde tu biblioteca para jugar." )
                 self.label.emit("¡Parche aplicado! Abre el juego desde tu biblioteca para jugar." )
             else:
-                sys.stdout.write( "Parche en su última versión." )
                 self.label.emit("Parche en su última versión." )
             self.finished.emit()
 
