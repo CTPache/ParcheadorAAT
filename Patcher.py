@@ -126,7 +126,8 @@ class Worker(QObject):
                 execute("Remove-Item -Path Patch -Force -Recurse")
                 versionfile = open(self.path + '\\version.txt', 'w+') 
                 versionfile.writelines([versionID, ',' ,URL])          
-                versionfile.close()   
+                versionfile.close()
+                execute("rm \'"+self.path+"\\Patcher.exe\'")
                 self.label.emit("¡Parche aplicado! Abre el juego desde tu biblioteca para jugar." )
             else:
                 self.label.emit("Parche en su última versión." )
