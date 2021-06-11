@@ -198,7 +198,7 @@ class Window(QMainWindow):
   
         self.setWindowIcon(QtGui.QIcon(resource_path('res\\logo.jpg')))
         self.setFixedSize(640,360)
-        self.setWindowTitle("Parcheador de Ace Attorney Trilogy - versión 1.0.0")
+        self.setWindowTitle("Parcheador de Ace Attorney Trilogy - versión 1.0.1")
         bgPath = (str)(resource_path('res\\background.jpg').encode())[1:]
         bgPath = bgPath.replace("\\\\", "/")
         buttonPath = (str)(resource_path('res\\b1.png').encode())[1:]
