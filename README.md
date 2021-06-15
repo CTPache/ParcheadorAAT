@@ -11,6 +11,8 @@ Parcheador de Ace Attorney Trilogy al español. El idioma se inserta como uno m�
 (En caso de paranoia extrema, siempre puedes revisar el código fuente y compilarlo o ejecutarlo tu mismo.)
 - Una vez el parche esté aplicado, tienes que ir a los ajustes y cambiar el idioma desde ahí (Será el último de la lista).
 - El parcheador solamente funciona en Windows 10, ya que usa el registro de Windows para buscar el juego. Si usas otra versión de Windows tendrás que modificar el script. Lo mismo para usuarios de Linux. Se admiten pull requests de soporte para otros sistemas operativos.
+- En el caso de querer mover la instalación del juego, se recomienda primero moverla con la herramienta de steam, y a continuación comprobar que no haya quedado nada en la ubicación anterior. Si queda algo, se puede cortar y pegar.
+- Se recomienda hacer lo mismo si se quiere desinstalar el juego, primero desinstalarlo desde steam y a continuación eliminar el directorio del juego de forma manual.
 
 ## Uso
 - Descargar la última release compilada.
