@@ -11,6 +11,7 @@ import winreg
 import sys
 import winsound
 from joblib import Parallel, delayed
+import time
 
 URL = 'https://api.github.com/repos/CTPache/ParcheadorAAT/releases/latest'
 
@@ -18,6 +19,7 @@ URL = 'https://api.github.com/repos/CTPache/ParcheadorAAT/releases/latest'
 def execute(cmd):
             completed = subprocess.run(
                 ["powershell", "-Command", cmd], capture_output=True)
+            print(completed.stderr,completed.stdout)
             return completed.returncode
 
 def executePatch(line, path, patch, callback, flag):
@@ -50,24 +52,52 @@ class Worker(QObject):
     path = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 787480"), "InstallLocation")[0] + "\\"
     patch = ".\\Patch\\"
     flag = 1
+    appID = "787480"
+
+    def validateGame(self):  
+            self.stopSteam()
+            self.label.emit('Verificando archivos del juego, no cierres la ventana de Steam.')
+            subprocess.run("cmd /c start steam://validate/"+self.appID)
+            self.getValidationPercent()
+
+    def stopSteam(self):
+            proc = subprocess.Popen('tasklist /v /FO:CSV', stdout=subprocess.PIPE)
+            output = proc.stdout.read().decode("cp437").split("\n")
+            for line in output:
+                if line.find("steam.exe") > 0 or line.find("PWAAT.exe") > 0 :
+                    pid = (int)(line.split(",")[1][1:-1])
+                    try:
+                        os.kill(pid,9)
+                    except:
+                        continue
+
+    def getValidationPercent(self):
+            proc = subprocess.Popen('tasklist /v /FO:CSV', stdout=subprocess.PIPE)
+            output = proc.stdout.read().decode("cp437").split("\n")
+            per = -1
+            for line in output:
+                if line.find("steam.exe") > 0:
+                    try:
+                        per = (line.split(",")[-1].split("- ")[1].split("%")[0])
+                    except:
+                        per = -1
+                    self.progress.emit((int)(per))
+                    pid = (int)(line.split(",")[1][1:-1])
+            if per == "100":
+                self.progress.emit(0)
+                os.kill(pid,9)
+                return
+            else:
+                self.getValidationPercent()
+    
 
     def getRelease(self):
             r = requests.get(URL)
             jsonFile = json.loads(r.text)
-           
-            try:
-                versionID = open(self.path + "version.txt", 'r').readline().split(',')[0]
-            except:
-                versionID = -1
 
-            if versionID == (str)(jsonFile['name']) :
-                return 0
-            else:
-                versionID = (str)(jsonFile['name'])
-
+            self.validateGame()
                 
-                if not os.path.isdir('./Patch'):
-                    
+            if not os.path.isdir('./Patch'):
                     self.label.emit('Descargando última versión del parche...')
                     i = 0
                     asset = jsonFile['assets'][i]
@@ -93,7 +123,7 @@ class Worker(QObject):
              
                     self.label.emit('¡Parche descargado!')
 
-                return versionID
+            return (str)(jsonFile['name'])
                 
     def parcheaFichero(self):
                         
@@ -111,30 +141,30 @@ class Worker(QObject):
     def run(self):
 
             versionID = self.getRelease()
-                            
-            if versionID:
-                         
-                self.label.emit('Aplicando el parche...')
-                file1 = open('Patch\\files.txt', 'r')
-                self.lines = file1.readlines()
-                file1.close()
-                self.parcheaFichero()
-                if self.flag == 0:
-                    self.label.emit('Ha sucedido un error al parchear el juego. Verifica los ficheros del juego en Steam y vuelve a \nintentarlo (Propiedades -> Archivos Locales -> Verificar integridad de los archivos del juego...).')
-                    self.finished.emit()
-                    return
-                execute("Remove-Item -Path Patch -Force -Recurse")
-                versionfile = open(self.path + '\\version.txt', 'w+') 
-                versionfile.writelines([versionID, ',' ,URL])          
-                versionfile.close()
-                execute("rm \'"+self.path+"\\Patcher.exe\'")
-                self.label.emit("¡Parche aplicado! Abre el juego desde tu biblioteca para jugar." )
-            else:
-                self.label.emit("Parche en su última versión." )
+                                                     
+            self.label.emit('Aplicando el parche...')
+            file1 = open('Patch\\files.txt', 'r')
+            self.lines = file1.readlines()
+            file1.close()
+            self.parcheaFichero()
+            if self.flag == 0:
+                self.label.emit('Ha sucedido un error al parchear el juego. Consulta la sección de trobuleshooting <a href=\"https://github.com/CTPache/ParcheadorAAT#troubleshooting\">aquí</a>')
+                self.finished.emit()
+                return
+            execute("Remove-Item -Path Patch -Force -Recurse")
+            execute("rm \'"+self.path+"\\Patcher.exe\'")
+            self.label.emit("¡Parche aplicado!" )
+
+            versionfile = open(self.path + '\\version.txt', 'w+') 
+            versionfile.writelines([versionID, ',' ,URL])          
+            versionfile.close()
+
             self.finished.emit()
 
 
 class Main(QWidget):
+    update = False
+
     def parchearThread(self):
         self.prog.setValue(0)
         self.thread = QThread()
@@ -147,14 +177,20 @@ class Main(QWidget):
         self.worker.progress.connect(self.reportProgress)
         self.worker.label.connect(self.changelabel)
         self.thread.start()
-        self.save.setEnabled(False)
+        if not self.update:
+            self.save.setEnabled(False)
         self.thread.finished.connect(self.finished)
         self.thread.finished.connect(
             lambda: self.prog.setValue(100)
         )
     def finished(self):
-        self.save.setEnabled(True)
-        winsound.MessageBeep()
+        winsound.MessageBeep()    
+        if self.update:
+                execute(".\PWAAT.exe")
+                time.sleep(5)
+                exit()
+        else:
+            self.save.setEnabled(True)
 
     def reportProgress(self, n):
         self.prog.setValue(n)
@@ -162,23 +198,37 @@ class Main(QWidget):
     def changelabel(self, n):
         self.label.setText(n)
 
-    def __init__(self):
+    def __init__(self, update):
         super().__init__()
         
+        self.update = update
+        
         layout = QGridLayout()
-        self.save = QPushButton("", self)
-        self.save.setToolTip("Parchear el juego a su última versión.")  
-        self.save.clicked.connect(self.parchearThread)
-        self.save.setFixedSize(154,30)
+        
         
         self.prog = QProgressBar(self)
 
         self.label = QLabel()
-        self.label.setText("Parchea tu copia original de Steam.")
-        self.label.setFixedSize(624,40)
+        if self.update:
+            self.label.setText("Se ha detectado una actualización. Espera a que el proceso se termine para jugar. No hace falta que hagas nada.")
+            self.label.setFixedSize(624,50)
+            self.parchearThread()
+           
+        else:
+            self.save = QPushButton("", self)
+            self.save.setToolTip("Parchear el juego a su última versión.")  
+            self.save.clicked.connect(self.parchearThread)
+            self.save.setFixedSize(154,30)        
+            self.label.setText("Parchea tu copia original de Steam.")
+            self.label.setFixedSize(624,40)
+            layout.addWidget(self.save, 0, 1)
+        
+        self.label.setTextFormat(Qt.RichText)
+        self.label.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        self.label.setOpenExternalLinks(True)
+        self.label.setWordWrap(True)
         layout.addWidget(self.prog, 0, 0)
         layout.addWidget(self.label, 1, 0)
-        layout.addWidget(self.save, 0, 1)
         layout.setAlignment(Qt.AlignBottom)
         self.setLayout(layout)
 
@@ -193,12 +243,15 @@ def resource_path(relative_path):
 
 class Window(QMainWindow):
 
-    def __init__(self):
+    def __init__(self, update):
         super().__init__()
-  
+
+        if update:
+            self.setWindowFlag(Qt.FramelessWindowHint)
+
         self.setWindowIcon(QtGui.QIcon(resource_path('res\\logo.jpg')))
         self.setFixedSize(640,360)
-        self.setWindowTitle("Parcheador de Ace Attorney Trilogy - versión 1.0.1")
+        self.setWindowTitle("Parcheador de Ace Attorney Trilogy - versión 1.1.0")
         bgPath = (str)(resource_path('res\\background.jpg').encode())[1:]
         bgPath = bgPath.replace("\\\\", "/")
         buttonPath = (str)(resource_path('res\\b1.png').encode())[1:]
@@ -213,7 +266,7 @@ class Window(QMainWindow):
             }\
         \
             ')
-        self.setCentralWidget(Main())
+        self.setCentralWidget(Main(update))
         self.centralWidget().setStyleSheet('\
         QPushButton {\
                 border-image: url('+ buttonPath +') 0 0 0 0 stretch stretch;\
@@ -260,9 +313,15 @@ class Window(QMainWindow):
         ')
 
 def init():
+
+    update = False
+    for arg in sys.argv:
+        if arg == '-u':
+            update = True
     app = QApplication(sys.argv)
 
-    win = Window()
+    win = Window(update)
+    win.setWindowModality(Qt.WindowModality.ApplicationModal)
     win.show()
 
     sys.exit(app.exec_())
