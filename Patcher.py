@@ -48,7 +48,7 @@ class Worker(QObject):
     finished = pyqtSignal()
     progress = pyqtSignal(int)
     label = pyqtSignal(str)
-    percent = 0
+    percent = -1
     path = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 787480"), "InstallLocation")[0] + "\\"
     patch = ".\\Patch\\"
     flag = 1
@@ -56,9 +56,9 @@ class Worker(QObject):
 
     def validateGame(self):  
             self.stopSteam()
-            self.label.emit('Verificando archivos del juego, no cierres la ventana de Steam.')
+            self.label.emit('Verificando archivos del juego, no cierres la ventana de Steam (se cerrará sola al acabar, si la cierras antes habrá que empezar de nuevo).')
             subprocess.run("cmd /c start steam://validate/"+self.appID)
-            self.getValidationPercent()
+            return self.getValidationPercent()
 
     def stopSteam(self):
             proc = subprocess.Popen('tasklist /v /FO:CSV', stdout=subprocess.PIPE)
@@ -74,60 +74,68 @@ class Worker(QObject):
     def getValidationPercent(self):
             proc = subprocess.Popen('tasklist /v /FO:CSV', stdout=subprocess.PIPE)
             output = proc.stdout.read().decode("cp437").split("\n")
-            per = -1
             for line in output:
                 if line.find("steam.exe") > 0:
+                    noProcess = False
                     try:
-                        per = (line.split(",")[-1].split("- ")[1].split("%")[0])
+                        self.percent = (int)(line.split(",")[-1].split("- ")[1].split("%")[0])
                     except:
-                        per = -1
-                    self.progress.emit((int)(per))
+                        noProcess = True
+                    self.progress.emit(self.percent)
                     pid = (int)(line.split(",")[1][1:-1])
-            if per == "100":
-                self.progress.emit(0)
+            
+            if noProcess and self.percent >= 0:
+                self.label.emit('Ha sucedido un error al parchear el juego. Consulta la sección de trobuleshooting <a href=\"https://github.com/CTPache/ParcheadorAAT#troubleshooting\">aquí</a>')
+                return False
+
+            if self.percent == 100:
+                self.percent = 0
+                self.progress.emit(self.percent)
                 os.kill(pid,9)
-                return
+                return True
             else:
-                self.getValidationPercent()
+                return self.getValidationPercent()
     
 
     def getRelease(self):
             r = requests.get(URL)
             jsonFile = json.loads(r.text)
 
-            self.validateGame()
+            if self.validateGame():
                 
-            if not os.path.isdir('./Patch'):
-                    self.label.emit('Descargando última versión del parche...')
-                    i = 0
-                    asset = jsonFile['assets'][i]
-                    while(asset['name']!='Patcher.zip'):
-                        i+=1
-                        asset = jsonFile['assets'][i]      
-                    patcherZip = requests.get(asset['browser_download_url'])
-                    open('patcher.zip', 'wb').write(patcherZip.content)
-                    with zipfile.ZipFile('patcher.zip', 'r') as zip_ref:
-                        zip_ref.extractall(self.path)
-                    execute('rm patcher.zip')
+                if not os.path.isdir('./Patch'):
+                        self.label.emit('Descargando última versión del parche...')
+                        i = 0
+                        asset = jsonFile['assets'][i]
+                        while(asset['name']!='Patcher.zip'):
+                            i+=1
+                            asset = jsonFile['assets'][i]      
+                        patcherZip = requests.get(asset['browser_download_url'])
+                        open('patcher.zip', 'wb').write(patcherZip.content)
+                        with zipfile.ZipFile('patcher.zip', 'r') as zip_ref:
+                            zip_ref.extractall(self.path)
+                        execute('rm patcher.zip')
 
-                    i = 0
-                    asset = jsonFile['assets'][i]
-                    while(asset['name']!='Patch.zip'):
-                        i+=1
-                        asset = jsonFile['assets'][i]                   
-                    patchZip = requests.get(asset['browser_download_url'])                
-                    open('patch.zip', 'wb').write(patchZip.content)
-                    with zipfile.ZipFile('patch.zip', 'r') as zip_ref:
-                        zip_ref.extractall('Patch')
-                    execute('rm patch.zip')
-             
-                    self.label.emit('¡Parche descargado!')
-
-            return (str)(jsonFile['name'])
+                        i = 0
+                        asset = jsonFile['assets'][i]
+                        while(asset['name']!='Patch.zip'):
+                            i+=1
+                            asset = jsonFile['assets'][i]                   
+                        patchZip = requests.get(asset['browser_download_url'])                
+                        open('patch.zip', 'wb').write(patchZip.content)
+                        with zipfile.ZipFile('patch.zip', 'r') as zip_ref:
+                            zip_ref.extractall('Patch')
+                        execute('rm patch.zip')
                 
+                        self.label.emit('¡Parche descargado!')
+
+                return (str)(jsonFile['name'])
+            else:
+                return False
+
     def parcheaFichero(self):
                         
-            results = Parallel(n_jobs= -1, backend="threading")(delayed(executePatch)(i, self.path, self.patch, self.callback, self.flag) for i in self.lines)
+            Parallel(n_jobs= -1, backend="threading")(delayed(executePatch)(i, self.path, self.patch, self.callback, self.flag) for i in self.lines)
             
     def callback(self, result):
                 if result or self.flag == 0:
@@ -140,8 +148,9 @@ class Worker(QObject):
 
     def run(self):
 
-            versionID = self.getRelease()
-                                                     
+        versionID = self.getRelease()
+        if versionID:
+
             self.label.emit('Aplicando el parche...')
             file1 = open('Patch\\files.txt', 'r')
             self.lines = file1.readlines()
@@ -159,7 +168,7 @@ class Worker(QObject):
             versionfile.writelines([versionID, ',' ,URL])          
             versionfile.close()
 
-            self.finished.emit()
+        self.finished.emit()
 
 
 class Main(QWidget):
