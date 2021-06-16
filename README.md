@@ -2,7 +2,7 @@
 ## Introducción
 Parcheador de Ace Attorney Trilogy al español. El idioma se inserta como uno más del juego, permitiendo conservar las partidas guardadas de los otros idiomas.
 
-*SI  ESTÁS AQUÍ Y SOLO QUIERES PARCHEAR EL JUEGO, VETE A LA [PESTAÑA DE RELEASES](https://github.com/CTPache/ParcheadorAAT/releases)*
+*SI  ESTÁS AQUÍ Y SOLO QUIERES PARCHEAR EL JUEGO, VETE A LA [PESTAÑA DE RELEASES](https://github.com/CTPache/ParcheadorAAT/releases), AUNQUE SE RECOMIENDA LA LECTURA DEL SIGUIENTE DOCUMENTO, SOBRE TODO LA PARTE MARCADA COMO IMPORTANTE.*
 
 ![imagen](https://user-images.githubusercontent.com/33907485/121191910-b4c89700-c86c-11eb-9dbd-e0e08f99710c.png)
 
