@@ -19,7 +19,7 @@ URL = 'https://api.github.com/repos/CTPache/ParcheadorAAT/releases/latest'
 def execute(cmd):
             completed = subprocess.run(
                 ["powershell", "-Command", cmd], capture_output=True)
-            print(completed.stderr,completed.stdout)
+            #print(completed.stderr,completed.stdout)
             return completed.returncode
 
 def executePatch(line, path, patch, callback, flag):
@@ -49,7 +49,7 @@ class Worker(QObject):
     progress = pyqtSignal(int)
     label = pyqtSignal(str)
     percent = -1
-    path = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 787480"), "InstallLocation")[0] + "\\"
+    path = ""
     patch = ".\\Patch\\"
     flag = 1
     appID = "787480"
@@ -147,7 +147,13 @@ class Worker(QObject):
                      
 
     def run(self):
-
+        try:
+            self.path = winreg.QueryValueEx(winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 787480"), "InstallLocation")[0] + "\\"
+        except:
+            self.label.emit('No se ha encontrado la instalación del juego de Steam. Consulta la sección de trobuleshooting <a href=\"https://github.com/CTPache/ParcheadorAAT#troubleshooting\">aquí</a>')
+            self.finished.emit()
+            return
+        
         versionID = self.getRelease()
         if versionID:
 
@@ -196,7 +202,7 @@ class Main(QWidget):
         winsound.MessageBeep()    
         if self.update:
                 execute(".\PWAAT.exe")
-                time.sleep(5)
+                time.sleep(2)
                 exit()
         else:
             self.save.setEnabled(True)
@@ -243,7 +249,6 @@ class Main(QWidget):
 
 def resource_path(relative_path):
         try:
-            # PyInstaller creates a temp folder and stores path in _MEIPASS
             base_path = sys._MEIPASS
         except Exception:
             base_path = os.path.abspath(".")
@@ -254,7 +259,7 @@ class Window(QMainWindow):
 
     def __init__(self, update):
         super().__init__()
-
+        self.setWindowFlags(Qt.Window | Qt.WindowStaysOnTopHint)
         if update:
             self.setWindowFlag(Qt.FramelessWindowHint)
 
