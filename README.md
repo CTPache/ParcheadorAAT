@@ -13,6 +13,7 @@ Parcheador de Ace Attorney Trilogy al español. El idioma se inserta como uno m�
 - El parcheador solamente funciona en Windows 10, ya que usa el registro de Windows para buscar el juego. Si usas otra versión de Windows tendrás que modificar el script. Lo mismo para usuarios de Linux. Se admiten pull requests de soporte para otros sistemas operativos.
 - En el caso de querer mover la instalación del juego, se recomienda primero moverla con la herramienta de steam, y a continuación comprobar que no haya quedado nada en la ubicación anterior. Si queda algo, se puede cortar y pegar.
 - Se recomienda hacer lo mismo si se quiere desinstalar el juego, primero desinstalarlo desde steam y a continuación eliminar el directorio del juego de forma manual.
+- A partir de la 1.0.2, el juego descargará el último parcheador por su cuenta si detecta una actualización. Esto implica que el juego puede parcer que se ha colgado al abrirlo, cuando lo que realmente pasa es que está descargando el parcheador para iniciar la actualización. Por eso, recomendamos que si el juego parece que tarda en arrancar no lo cerréis, y simplemente dejéis que acabe de hacer lo suyo.
 
 ## Uso
 - Descargar la última release compilada.
@@ -38,19 +39,13 @@ Eso puede deberse a estos motivos:
 En cualquiera de los tres casos, la solución mas sencilla es instalar el juego desde Steam.
 
 ### Es posible que el parcheador falle.
-Lo más habitual es que suceda al principio, cuando falta un único fichero por parchear (el Assembly-CSharp.dll). Esto es a causa de estar utilizando una versión de este binario diferente a la versión vanilla de Steam. En caso de haber aplicado otro parche anteriormente, se debe restaurar este fichero para aplicar el parche nuevo. Esto se hace fácilmente desde la interfaz de steam:
-- En la página del juego, se abre la rueda dentada, y se pulsa en "Propiedades...".
-- En el menú que aparece, se navega hasta "Archivos locales"
-- A continuación, pulsar el botón de "Verificar integridad de los archivos de juego..."
  
-Tardará un rato en verificar y descargar los ficheros originales. Una vez estén, se podrá aplicar el parche de forma normal.
+Desde la versión 1.1.0, el parcheador verifica los contenidos del juego de Steam. Tardará un rato en verificar y descargar los ficheros originales. Una vez estén, se podrá aplicar el parche de forma normal. Si el usuario cierra por su cuenta la ventana de verificación, el parcheador se quedará atascado en un bucle infinito, y habrá que volver a empezar el proceso.
 
 También puede suceder que el parcheador no sea capaz de escribir en el directorio donde se encuentra. Esto puede ser porque no se ha descomprimido, entonces se descomprime a un directorio temporal en el que no puede escribir, o porque no tiene permisos de escritura en el directorio. Esto se puede solcionar de dos maneras:
 
 - Moviendo el ejecutable a un directorio donde tenga permisos, como puede ser el escritorio o la carpeta de Documentos.
 - Ejecutándolo como administrador (No recomendado, hacer eso solo si lo anterior no funcionó).
-
-
 
 
 Si necesitas soporte más allá de lo que hay aquí escrito, escribe ene el canal de ``#soporte-parches`` de nuestro [servidor de discord](https://discord.gg/8UgvVG92Hd).
