@@ -415,3 +415,7 @@ PWAAT_Data\StreamingAssets\GS1\science\itm04c0.unity3d,PWAAT_Data\StreamingAsset
 PWAAT_Data\StreamingAssets\GS1\science\itm0610.unity3d,PWAAT_Data\StreamingAssets\GS1\science\itm0610e.unity3d
 PWAAT_Data\StreamingAssets\GS1\science\itm0820.unity3d,PWAAT_Data\StreamingAssets\GS1\science\itm0820e.unity3d
 PWAAT_Data\StreamingAssets\GS1\science\itm0830.unity3d,PWAAT_Data\StreamingAssets\GS1\science\itm0830e.unity3d
+PWAAT_Data\StreamingAssets\GS1\BG\bg046u.unity3d,PWAAT_Data\StreamingAssets\GS1\BG\bg046e.unity3d
+PWAAT_Data\StreamingAssets\GS1\BG\bg04du.unity3d,PWAAT_Data\StreamingAssets\GS1\BG\bg04de.unity3d
+PWAAT_Data\StreamingAssets\GS1\thumb\thumb0fu.unity3d,PWAAT_Data\StreamingAssets\GS1\thumb\thumb0fe.unity3d
+PWAAT_Data\StreamingAssets\GS1\thumb\thumb13u.unity3d,PWAAT_Data\StreamingAssets\GS1\thumb\thumb13e.unity3d

@@ -107,17 +107,6 @@ class Worker(QObject):
                         self.label.emit('Descargando última versión del parche...')
                         i = 0
                         asset = jsonFile['assets'][i]
-                        while(asset['name']!='Patcher.zip'):
-                            i+=1
-                            asset = jsonFile['assets'][i]      
-                        patcherZip = requests.get(asset['browser_download_url'])
-                        open('patcher.zip', 'wb').write(patcherZip.content)
-                        with zipfile.ZipFile('patcher.zip', 'r') as zip_ref:
-                            zip_ref.extractall(self.path)
-                        execute('rm patcher.zip')
-
-                        i = 0
-                        asset = jsonFile['assets'][i]
                         while(asset['name']!='Patch.zip'):
                             i+=1
                             asset = jsonFile['assets'][i]                   
@@ -169,11 +158,6 @@ class Worker(QObject):
             execute("Remove-Item -Path Patch -Force -Recurse")
             execute("rm \'"+self.path+"\\Patcher.exe\'")
             self.label.emit("¡Parche aplicado!" )
-
-            versionfile = open(self.path + '\\version.txt', 'w+') 
-            versionfile.writelines([versionID, ',' ,URL])          
-            versionfile.close()
-
         self.finished.emit()
 
 
@@ -203,7 +187,7 @@ class Main(QWidget):
         if self.update:
                 execute(".\PWAAT.exe")
                 time.sleep(2)
-                exit()
+                sys.exit()
         else:
             self.save.setEnabled(True)
 
